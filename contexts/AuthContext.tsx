@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 import { ensureUserProfilesExist } from '../lib/auth-helpers';
+import { updateLoginStreak } from '../lib/database';
 
 interface AuthContextType {
   user: User | null;
@@ -45,6 +46,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const result = await ensureUserProfilesExist();
         if (!result.success) {
           console.error('Failed to ensure profiles exist for initial session:', result.error);
+        } else {
+          // Update login streak for existing session (user opening app)
+          console.log('Updating login streak for existing session...');
+          const streakResult = await updateLoginStreak(session.user.id);
+          if (streakResult) {
+            console.log('Login streak updated for existing session:', streakResult);
+          } else {
+            console.error('Failed to update login streak for existing session');
+          }
         }
       }
       
@@ -72,6 +82,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const result = await ensureUserProfilesExist();
         if (!result.success) {
           console.error('Failed to ensure profiles exist after sign in:', result.error);
+        } else {
+          // Update login streak after ensuring profiles exist
+          console.log('Updating login streak...');
+          const streakResult = await updateLoginStreak(session.user.id);
+          if (streakResult) {
+            console.log('Login streak updated:', streakResult);
+          } else {
+            console.error('Failed to update login streak');
+          }
         }
       }
       

@@ -18,7 +18,9 @@ export default function DashboardScreen() {
   
   const { user } = useAuth();
   const { profile } = useUser();
-  const streak = 0; // Static for now
+  
+  // Get streak from user profile
+  const streak = userProfile?.streak_count || 0;
 
   // Fetch user profile data
   useEffect(() => {

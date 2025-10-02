@@ -16,6 +16,9 @@ export interface UserProfile {
   daily_carbs_goal?: number;
   daily_fat_goal?: number;
   onboarding_completed: boolean;
+  streak_count?: number;
+  last_login_date?: string;
+  best_streak?: number;
 }
 
 export const checkOnboardingStatus = async (userId: string): Promise<boolean> => {
@@ -72,4 +75,79 @@ export const updateUserProfile = async (userId: string, updates: Partial<UserPro
 
 export const completeOnboarding = async (userId: string) => {
   return updateUserProfile(userId, { onboarding_completed: true });
+};
+
+// Helper function to get today's date in YYYY-MM-DD format
+const getTodayDateString = (): string => {
+  const today = new Date();
+  return today.toISOString().split('T')[0];
+};
+
+// Helper function to get yesterday's date in YYYY-MM-DD format
+const getYesterdayDateString = (): string => {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return yesterday.toISOString().split('T')[0];
+};
+
+export const updateLoginStreak = async (userId: string): Promise<{ streakCount: number; bestStreak: number } | null> => {
+  try {
+    console.log('=== UPDATING LOGIN STREAK ===');
+    
+    // Get current user profile
+    const profile = await getUserProfile(userId);
+    if (!profile) {
+      console.error('User profile not found');
+      return null;
+    }
+
+    const today = getTodayDateString();
+    const yesterday = getYesterdayDateString();
+    const lastLoginDate = profile.last_login_date;
+    
+    console.log('Today:', today);
+    console.log('Yesterday:', yesterday);
+    console.log('Last login date:', lastLoginDate);
+
+    let newStreakCount = profile.streak_count || 0;
+    let newBestStreak = profile.best_streak || 0;
+
+    if (lastLoginDate === today) {
+      // Already logged in today, do nothing
+      console.log('Already logged in today, streak unchanged');
+      return { streakCount: newStreakCount, bestStreak: newBestStreak };
+    } else if (lastLoginDate === yesterday) {
+      // Logged in yesterday, increment streak
+      newStreakCount = (profile.streak_count || 0) + 1;
+      console.log('Logged in yesterday, incrementing streak to:', newStreakCount);
+    } else {
+      // Missed a day or first login, reset streak to 1
+      newStreakCount = 1;
+      console.log('Missed a day or first login, resetting streak to 1');
+    }
+
+    // Update best streak if current streak is higher
+    if (newStreakCount > newBestStreak) {
+      newBestStreak = newStreakCount;
+      console.log('New best streak:', newBestStreak);
+    }
+
+    // Update the database
+    const { error } = await updateUserProfile(userId, {
+      streak_count: newStreakCount,
+      last_login_date: today,
+      best_streak: newBestStreak,
+    });
+
+    if (error) {
+      console.error('Error updating streak:', error);
+      return null;
+    }
+
+    console.log('Streak updated successfully');
+    return { streakCount: newStreakCount, bestStreak: newBestStreak };
+  } catch (error) {
+    console.error('Error in updateLoginStreak:', error);
+    return null;
+  }
 };
