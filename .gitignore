@@ -7,7 +7,6 @@ node_modules/
 .expo/
 dist/
 web-build/
-expo-env.d.ts
 
 # Native
 *.orig.*
@@ -34,5 +33,16 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Google Cloud Service Account Keys (NEVER COMMIT THESE!)
+elegant-skein-473614-v2-4e1db5a61efb.json
+*-credentials.json
+service-account*.json
+
+# Test files and debug scripts
+test-*.js
+debug-*.js
+*.ps1
+*.bat
 
 app-example
