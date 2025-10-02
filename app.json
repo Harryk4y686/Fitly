@@ -1,10 +1,41 @@
 {
   "expo": {
-    "scheme": "acme",
+    "name": "CalorieSnap",
+    "slug": "zero-ai-health-scan",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.harryk4y.caloriesnap"
+    },
+    "web": {
+      "favicon": "./assets/icon.png",
+      "bundler": "metro"
+    },
     "plugins": [
       "expo-router"
     ],
-    "name": "CalorieSnap",
-    "slug": "CalorieSnap"
+    "scheme": "caloriesnap",
+    "extra": {
+      "eas": {
+        "projectId": "acc58179-5c10-47db-97a6-b254a7e5525f"
+      }
+    }
   }
 }

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Circle Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .progress-circle {
+            transition: stroke-dashoffset 1s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">
+            🔥 Progress Circle Component Demo
+        </h1>
+        
+        <!-- Main Demo -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h2 class="text-2xl font-semibold mb-6 text-center text-gray-800">
+                Calorie Progress Tracker
+            </h2>
+            
+            <div class="flex justify-center mb-6">
+                <div id="mainCircle" class="relative inline-flex items-center justify-center">
+                    <!-- This will be populated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="text-center mb-6">
+                <p class="text-lg font-semibold text-gray-800">
+                    <span id="currentValue">684</span> / <span id="maxValue">2000</span> calories
+                </p>
+                <p class="text-sm text-gray-600">
+                    <span id="percentage">34.2</span>% of daily goal
+                </p>
+            </div>
+            
+            <!-- Controls -->
+            <div class="grid grid-cols-4 gap-3 max-w-md mx-auto">
+                <button onclick="updateProgress(-100)" 
+                        class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                    -100
+                </button>
+                <button onclick="updateProgress(100)" 
+                        class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    +100
+                </button>
+                <button onclick="resetProgress()" 
+                        class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors">
+                    Reset
+                </button>
+                <button onclick="fullProgress()" 
+                        class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                    Full
+                </button>
+            </div>
+        </div>
+        
+        <!-- Different Sizes Demo -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h3 class="text-xl font-semibold mb-6 text-center text-gray-800">
+                Different Sizes & Stroke Widths
+            </h3>
+            <div class="flex justify-center items-center gap-8 flex-wrap">
+                <div class="text-center">
+                    <div id="smallCircle"></div>
+                    <p class="text-sm text-gray-600 mt-2">Small (80px)</p>
+                </div>
+                <div class="text-center">
+                    <div id="mediumCircle"></div>
+                    <p class="text-sm text-gray-600 mt-2">Medium (120px)</p>
+                </div>
+                <div class="text-center">
+                    <div id="largeCircle"></div>
+                    <p class="text-sm text-gray-600 mt-2">Large (160px)</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Auto Animation Demo -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h3 class="text-xl font-semibold mb-6 text-center text-gray-800">
+                Auto Animation Demo
+            </h3>
+            <div class="flex justify-center">
+                <div id="autoCircle"></div>
+            </div>
+            <p class="text-center text-sm text-gray-600 mt-4">
+                Automatically cycles through different progress values
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let currentValue = 684;
+        const maxValue = 2000;
+        
+        function createProgressCircle(containerId, value, max, size = 120, strokeWidth = 10) {
+            const container = document.getElementById(containerId);
+            const progressPercentage = Math.min(100, Math.max(0, (value / max) * 100));
+            const radius = (size - strokeWidth) / 2;
+            const circumference = 2 * Math.PI * radius;
+            const center = size / 2;
+            const strokeDashoffset = circumference - (circumference * progressPercentage) / 100;
+            
+            container.innerHTML = `
+                <svg width="${size}" height="${size}" class="transform -rotate-90" style="width: ${size}px; height: ${size}px;">
+                    <!-- Background track -->
+                    <circle
+                        cx="${center}"
+                        cy="${center}"
+                        r="${radius}"
+                        stroke="rgb(229, 231, 235)"
+                        stroke-width="${strokeWidth}"
+                        fill="transparent"
+                        class="opacity-30"
+                    />
+                    
+                    <!-- Progress stroke -->
+                    <circle
+                        cx="${center}"
+                        cy="${center}"
+                        r="${radius}"
+                        stroke="rgb(34, 197, 94)"
+                        stroke-width="${strokeWidth}"
+                        fill="transparent"
+                        stroke-dasharray="${circumference}"
+                        stroke-dashoffset="${strokeDashoffset}"
+                        stroke-linecap="round"
+                        class="progress-circle"
+                    />
+                </svg>
+                
+                <!-- Center content -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-2xl mb-1">🔥</span>
+                    <span class="text-sm font-semibold text-gray-700">
+                        ${Math.round(progressPercentage)}%
+                    </span>
+                </div>
+            `;
+            
+            container.className = "relative inline-flex items-center justify-center";
+        }
+        
+        function updateAllCircles() {
+            createProgressCircle('mainCircle', currentValue, maxValue, 150, 12);
+            createProgressCircle('smallCircle', currentValue, maxValue, 80, 8);
+            createProgressCircle('mediumCircle', currentValue, maxValue, 120, 10);
+            createProgressCircle('largeCircle', currentValue, maxValue, 160, 14);
+            
+            // Update text
+            document.getElementById('currentValue').textContent = currentValue;
+            document.getElementById('maxValue').textContent = maxValue;
+            document.getElementById('percentage').textContent = ((currentValue / maxValue) * 100).toFixed(1);
+        }
+        
+        function updateProgress(change) {
+            currentValue = Math.min(maxValue, Math.max(0, currentValue + change));
+            updateAllCircles();
+        }
+        
+        function resetProgress() {
+            currentValue = 0;
+            updateAllCircles();
+        }
+        
+        function fullProgress() {
+            currentValue = maxValue;
+            updateAllCircles();
+        }
+        
+        // Auto animation demo
+        let autoValue = 0;
+        function animateAutoCircle() {
+            autoValue = (autoValue + 50) % (maxValue + 200);
+            createProgressCircle('autoCircle', autoValue, maxValue, 140, 12);
+        }
+        
+        // Initialize all circles
+        updateAllCircles();
+        
+        // Start auto animation
+        setInterval(animateAutoCircle, 500);
+    </script>
+</body>
+</html>
